@@ -8,10 +8,12 @@ import (
 	"encoding/hex"
 	"errors"
 
+	"github.com/kamalshkeir/kmap"
 	"golang.org/x/crypto/scrypt"
 )
 
 var secretInit string
+var aesCache = kmap.New[string, string](false, 50)
 
 // SetSecret sets the secret key for encryption/decryption.
 func SetSecret(secret string) {
@@ -22,6 +24,9 @@ func SetSecret(secret string) {
 func Encrypt(data string) (string, error) {
 	if secretInit == "" {
 		secretInit = randomString(32)
+	}
+	if v, ok := aesCache.Get(data); ok {
+		return v, nil
 	}
 
 	key, salt, err := deriveKey([]byte(secretInit), nil)
@@ -47,7 +52,13 @@ func Encrypt(data string) (string, error) {
 	ciphertext := gcm.Seal(nonce, nonce, []byte(data), nil)
 
 	ciphertext = append(ciphertext, salt...)
-	return hex.EncodeToString(ciphertext), nil
+	res := hex.EncodeToString(ciphertext)
+	err = aesCache.Set(data, res)
+	if err != nil {
+		aesCache.Flush()
+		_ = aesCache.Set(data, res)
+	}
+	return res, nil
 }
 
 // Decrypt decrypts the given encrypted data using the secret key.
@@ -55,7 +66,9 @@ func Decrypt(data string) (string, error) {
 	if secretInit == "" {
 		return "", errors.New("no secret given, set SECRET in env file")
 	}
-
+	if v, ok := aesCache.Get(data); ok {
+		return v, nil
+	}
 	dataByte, err := hex.DecodeString(data)
 	if err != nil {
 		return "", errors.New("bad token")
@@ -84,8 +97,13 @@ func Decrypt(data string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-
-	return string(plaintext), nil
+	res := string(plaintext)
+	err = aesCache.Set(data, res)
+	if err != nil {
+		aesCache.Flush()
+		_ = aesCache.Set(data, res)
+	}
+	return res, nil
 }
 
 func deriveKey(password, salt []byte) ([]byte, []byte, error) {

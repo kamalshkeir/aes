@@ -1,3 +1,5 @@
+github.com/kamalshkeir/kmap v1.1.2 h1:P89SXps9LN8JYQWDPkfhDsp5pF6tsV7O8OCuxtV8g8s=
+github.com/kamalshkeir/kmap v1.1.2/go.mod h1:SLSllMqrhSTJtgYd14nXeFZ/shp9AY4t20YGCtlcziI=
 golang.org/x/crypto v0.4.0 h1:UVQgzMY87xqpKNgb+kDsll2Igd33HszWHFLmpaRMq/8=
 golang.org/x/crypto v0.4.0/go.mod h1:3quD/ATkf6oY+rnes5c3ExXTbLc8mueNue5/DoinL80=
 golang.org/x/crypto v0.10.0 h1:LKqV2xt9+kDzSTfOhx4FrkEBcMrAgHSYgzywV9zcGmM=
