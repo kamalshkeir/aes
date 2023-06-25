@@ -25,10 +25,6 @@ func Encrypt(data string) (string, error) {
 	if secretInit == "" {
 		secretInit = randomString(32)
 	}
-	if v, ok := aesCache.Get(data); ok {
-		return v, nil
-	}
-
 	key, salt, err := deriveKey([]byte(secretInit), nil)
 	if err != nil {
 		return "", err
@@ -52,13 +48,7 @@ func Encrypt(data string) (string, error) {
 	ciphertext := gcm.Seal(nonce, nonce, []byte(data), nil)
 
 	ciphertext = append(ciphertext, salt...)
-	res := hex.EncodeToString(ciphertext)
-	err = aesCache.Set(data, res)
-	if err != nil {
-		aesCache.Flush()
-		_ = aesCache.Set(data, res)
-	}
-	return res, nil
+	return hex.EncodeToString(ciphertext), nil
 }
 
 // Decrypt decrypts the given encrypted data using the secret key.
