@@ -13,7 +13,7 @@ import (
 )
 
 var secretInit string
-var aesCache = kmap.New[string, string](false, 50)
+var aesCache = kmap.New[string, string](50)
 
 // SetSecret sets the secret key for encryption/decryption.
 func SetSecret(secret string) {
